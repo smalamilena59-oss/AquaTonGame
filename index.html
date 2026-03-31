@@ -24,6 +24,85 @@
             overflow-x: hidden;
         }
 
+        /* Splash Screen - красивая загрузка */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #0a2f44 0%, #00152b 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .splash-content {
+            text-align: center;
+            animation: splashPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            animation: splashFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes splashFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .splash-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(95deg, #7AD0E8, #FFD966);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .splash-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        .splash-wave {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .splash-wave span {
+            width: 8px;
+            height: 8px;
+            background: #7AD0E8;
+            border-radius: 50%;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .splash-wave span:nth-child(1) { animation-delay: 0s; }
+        .splash-wave span:nth-child(2) { animation-delay: 0.2s; }
+        .splash-wave span:nth-child(3) { animation-delay: 0.4s; }
+        .splash-wave span:nth-child(4) { animation-delay: 0.6s; }
+        .splash-wave span:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes wave {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+
         .ocean-bg {
             position: fixed;
             top: 0;
@@ -89,6 +168,12 @@
             position: relative;
             z-index: 2;
             padding: 16px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .container.loaded {
+            opacity: 1;
         }
 
         .header {
@@ -458,7 +543,7 @@
             font-family: monospace;
         }
 
-        /* Модальное окно пополнения/вывода */
+        /* Модальное окно */
         .finance-modal {
             display: none;
             position: fixed;
@@ -612,12 +697,38 @@
     </style>
 </head>
 <body>
+<!-- Splash Screen -->
+<div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+        <div class="splash-logo">
+            <svg width="120" height="120" viewBox="0 0 100 100" fill="none">
+                <defs>
+                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7AD0E8"/>
+                        <stop offset="100%" stop-color="#FFD966"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="45" fill="url(#logoGrad)" opacity="0.3"/>
+                <path d="M50 20 L65 35 L70 50 L65 65 L50 80 L35 65 L30 50 L35 35 Z" fill="url(#logoGrad)"/>
+                <circle cx="42" cy="45" r="3" fill="white"/>
+                <circle cx="58" cy="45" r="3" fill="white"/>
+                <path d="M45 55 L55 55" stroke="white" stroke-width="2"/>
+            </svg>
+        </div>
+        <div class="splash-title">AquaTON</div>
+        <div class="splash-subtitle">Океанский фермерский рынок</div>
+        <div class="splash-wave">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+</div>
+
 <div class="ocean-bg">
     <div class="sun-rays"></div>
     <div class="wave-overlay"></div>
 </div>
 <div id="bubbles-container"></div>
-<div class="container">
+<div class="container" id="mainContainer">
     <div class="header">
         <div class="balance-grid">
             <div class="balance-card" id="ton-balance-card">
@@ -736,8 +847,12 @@
                 <h3><i class="fas fa-user-circle"></i> Профиль</h3>
             </div>
             <div class="balance-card" style="margin-bottom:16px; cursor:default;">
-                <small>ID игрока</small>
-                <div class="value" id="user-id">player</div>
+                <small>👤 Имя пользователя</small>
+                <div class="value" id="user-name">Загрузка...</div>
+            </div>
+            <div class="balance-card" style="margin-bottom:16px; cursor:default;">
+                <small>🆔 ID</small>
+                <div class="value" id="user-id">Загрузка...</div>
             </div>
         </div>
         <div class="card">
@@ -789,7 +904,7 @@
                 <div class="address-row">
                     <div class="label">📝 Мемо (обязательно)</div>
                     <div class="value" id="deposit-memo">
-                        <span id="deposit-memo-text">AQUA_${userId}</span>
+                        <span id="deposit-memo-text">AQUA_</span>
                         <button class="copy-btn" data-copy="deposit-memo-text"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>
@@ -831,6 +946,30 @@
 </div>
 
 <script>
+    // Получение данных пользователя из Telegram WebApp
+    let tg = window.Telegram?.WebApp;
+    let userData = null;
+    
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        userData = tg.initDataUnsafe?.user;
+    }
+    
+    // Если нет Telegram WebApp (для теста локально)
+    if (!userData) {
+        userData = {
+            id: Math.floor(Math.random() * 10000000),
+            username: "guest_" + Math.floor(Math.random() * 1000),
+            first_name: "Гость",
+            last_name: ""
+        };
+    }
+    
+    const userIdTelegram = userData.id || "unknown";
+    const userNameTelegram = userData.username || (userData.first_name + (userData.last_name ? " " + userData.last_name : ""));
+    const displayName = userNameTelegram || `Player_${userIdTelegram.toString().slice(-6)}`;
+    
     const CREATURES = [
         { id: "mollusk", name: "Жемчужный Моллюск", price: 0.5, earn: 0.01, svg: '<svg viewBox="0 0 100 100"><defs><radialGradient id="shellGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F5E6D3"/><stop offset="100%" stop-color="#D4B48C"/></radialGradient></defs><circle cx="50" cy="50" r="36" fill="url(#shellGrad)" stroke="#B87C4F" stroke-width="2"/><path d="M30 50 L70 50" stroke="#9B6A3E" stroke-width="3"/><circle cx="38" cy="45" r="4" fill="white"/><circle cx="62" cy="45" r="4" fill="white"/><circle cx="40" cy="44" r="2" fill="#2C1A0E"/><circle cx="64" cy="44" r="2" fill="#2C1A0E"/><ellipse cx="50" cy="66" rx="14" ry="7" fill="#E8C49A"/><circle cx="50" cy="58" r="5" fill="#FFE4C4" stroke="#FFAA66" stroke-width="1"/><circle cx="48" cy="57" r="1.5" fill="#FFD966"/></svg>' },
         { id: "shrimp", name: "Королевская Креветка", price: 2, earn: 0.03, svg: '<svg viewBox="0 0 100 100"><defs><linearGradient id="shrimpGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFAA77"/><stop offset="100%" stop-color="#FF6644"/></linearGradient></defs><path d="M50 22 L70 34 L78 52 L70 70 L50 82 L30 70 L22 52 L30 34 Z" fill="url(#shrimpGrad)" stroke="#CC5533" stroke-width="2"/><circle cx="38" cy="48" r="4" fill="white"/><circle cx="62" cy="48" r="4" fill="white"/><circle cx="40" cy="47" r="2" fill="#331A0A"/><circle cx="64" cy="47" r="2" fill="#331A0A"/><path d="M82 52 L96 48 L96 56 Z" fill="#FF8866"/><path d="M18 52 L4 48 L4 56 Z" fill="#FF8866"/></svg>' },
@@ -848,7 +987,6 @@
     let lastHourTimestamp = 0;
     let wheelCooldown = 0;
     let referrals = 0;
-    let userId = "player_" + Math.floor(Math.random() * 10000);
     let bubbleOrders = [];
     let currentMarketTab = "all";
     let currentFinanceTab = "deposit";
@@ -897,7 +1035,7 @@
         if (amount <= 0 || priceTon <= 0) return alert("Введите корректные значения");
         if (userBubbles < amount) return alert(`У вас только ${Math.floor(userBubbles)} пузырей`);
         userBubbles -= amount;
-        bubbleOrders.push({ id: Date.now() + Math.random(), amount: amount, priceTon: priceTon, seller: userId });
+        bubbleOrders.push({ id: Date.now() + Math.random(), amount: amount, priceTon: priceTon, seller: displayName });
         saveGame();
         renderUI();
     }
@@ -916,7 +1054,7 @@
 
     function cancelOrder(orderId) {
         let order = bubbleOrders.find(o => o.id === orderId);
-        if (order && order.seller === userId) {
+        if (order && order.seller === displayName) {
             userBubbles += order.amount;
             bubbleOrders = bubbleOrders.filter(o => o.id !== orderId);
             saveGame();
@@ -962,7 +1100,7 @@
         if (currentFinanceTab === "deposit") {
             depositSection.style.display = "block";
             withdrawSection.style.display = "none";
-            document.getElementById("deposit-memo-text").innerText = `AQUA_${userId}`;
+            document.getElementById("deposit-memo-text").innerText = `AQUA_${userIdTelegram}`;
         } else {
             depositSection.style.display = "none";
             withdrawSection.style.display = "block";
@@ -974,7 +1112,7 @@
             const amount = parseFloat(document.getElementById("deposit-amount").value);
             if (amount && amount > 0) {
                 userTon += amount;
-                alert(`✅ Пополнено ${amount} TON!\n\nАдрес: ${document.getElementById("deposit-addr-text").innerText}\nМемо: AQUA_${userId}`);
+                alert(`✅ Пополнено ${amount} TON!\n\nАдрес: ${document.getElementById("deposit-addr-text").innerText}\nМемо: AQUA_${userIdTelegram}`);
                 document.getElementById("deposit-amount").value = "";
                 saveGame();
                 renderUI();
@@ -1027,6 +1165,10 @@
         document.getElementById("bubble-balance").innerText = Math.floor(userBubbles);
         document.getElementById("total-farm").innerText = totalEarnPerHour().toFixed(2);
         document.getElementById("inventory-count").innerText = inventory.length;
+        
+        // Отображение профиля
+        document.getElementById("user-name").innerHTML = displayName;
+        document.getElementById("user-id").innerHTML = userIdTelegram;
 
         let invHtml = "";
         if (inventory.length === 0) invHtml = "<div style='padding:25px;text-align:center;opacity:0.7;'>🐠 Нет обитателей. Купите в магазине!</div>";
@@ -1064,7 +1206,7 @@
         });
         document.getElementById("all-animals").innerHTML = allHtml;
 
-        let myOrders = bubbleOrders.filter(o => o.seller === userId);
+        let myOrders = bubbleOrders.filter(o => o.seller === displayName);
         let displayOrders = currentMarketTab === "all" ? bubbleOrders : myOrders;
         let ordersHtml = "";
         if (displayOrders.length === 0) ordersHtml = "<div style='text-align:center;padding:35px;opacity:0.7;'>📭 Нет заказов</div>";
@@ -1073,7 +1215,7 @@
             ordersHtml += `<div class="order-card">
                                 <div><div class="order-amount">${o.amount} 🫧</div><div class="order-rate" style="font-size:11px;">${rate} TON/пузырь</div></div>
                                 <div><div class="order-price">${o.priceTon} TON</div>
-                                ${o.seller === userId ? `<button class="cancel-order" data-id="${o.id}" style="background:#a03e3e;">Отменить</button>` : `<button class="buy-order" data-id="${o.id}" class="btn-gold">Купить</button>`}
+                                ${o.seller === displayName ? `<button class="cancel-order" data-id="${o.id}" style="background:#a03e3e;">Отменить</button>` : `<button class="buy-order" data-id="${o.id}" class="btn-gold">Купить</button>`}
                                 </div>
                             </div>`;
         });
@@ -1085,16 +1227,16 @@
         if (hasM) { document.getElementById("wheel-locked").style.display = "none"; document.getElementById("wheel-active").style.display = "block"; }
         else { document.getElementById("wheel-locked").style.display = "block"; document.getElementById("wheel-active").style.display = "none"; }
 
-        document.getElementById("referral-link").innerHTML = `https://t.me/AquaTON_bot/app?start=${userId}`;
+        document.getElementById("referral-link").innerHTML = `https://t.me/AquaTON_bot/app?start=${userIdTelegram}`;
         document.getElementById("referral-stats").innerHTML = `Приглашено: ${referrals} друзей`;
-        document.getElementById("user-id").innerHTML = userId;
     }
 
     function saveGame() {
-        localStorage.setItem("aquaton_v6", JSON.stringify({ inventory, userTon, userBubbles, lastHourTimestamp, wheelCooldown, referrals, userId, bubbleOrders }));
+        localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify({ inventory, userTon, userBubbles, lastHourTimestamp, wheelCooldown, referrals, bubbleOrders }));
     }
+    
     function loadGame() {
-        let data = localStorage.getItem("aquaton_v6");
+        let data = localStorage.getItem(`aquaton_${userIdTelegram}`);
         if (data) {
             try {
                 let d = JSON.parse(data);
@@ -1104,7 +1246,6 @@
                 lastHourTimestamp = d.lastHourTimestamp ?? 0;
                 wheelCooldown = d.wheelCooldown ?? 0;
                 referrals = d.referrals ?? 0;
-                userId = d.userId ?? "player_" + Math.floor(Math.random() * 10000);
                 bubbleOrders = d.bubbleOrders || [];
             } catch(e) {}
         }
@@ -1124,6 +1265,19 @@
             container.appendChild(b);
             setTimeout(() => b.remove(), 15000);
         }, 350);
+    }
+
+    // Скрыть splash и показать контент
+    function hideSplash() {
+        const splash = document.getElementById("splashScreen");
+        const container = document.getElementById("mainContainer");
+        setTimeout(() => {
+            splash.style.opacity = "0";
+            setTimeout(() => {
+                splash.style.display = "none";
+                container.classList.add("loaded");
+            }, 800);
+        }, 1500);
     }
 
     // Копирование
@@ -1155,7 +1309,6 @@
         };
     });
 
-    // Финансовые вкладки
     document.querySelectorAll(".finance-tab").forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll(".finance-tab").forEach(t => t.classList.remove("active"));
@@ -1165,7 +1318,6 @@
         };
     });
 
-    // Быстрые суммы
     document.querySelectorAll(".quick-amount[data-amount]").forEach(btn => {
         btn.onclick = () => {
             document.getElementById("deposit-amount").value = btn.dataset.amount;
@@ -1189,16 +1341,20 @@
         navigator.clipboard.writeText(document.getElementById("referral-link").innerText);
         alert("Ссылка скопирована!");
     };
-    document.getElementById("support-btn").onclick = () => alert("Техподдержка: @aquaton_support");
+    document.getElementById("support-btn").onclick = () => alert("Техподдержка: @aquaton_support\n\nПо всем вопросам пишите в Telegram");
     document.getElementById("finance-confirm").onclick = confirmFinance;
     document.getElementById("finance-cancel").onclick = closeFinanceModal;
 
+    // Инициализация
     loadGame();
     createBubbles();
     setInterval(() => { autoGrantBubbles(); renderUI(); }, 1000);
     setInterval(updateTimer, 1000);
     renderUI();
     updateTimer();
+    
+    // Запускаем splash screen
+    hideSplash();
 </script>
 </body>
 </html>
