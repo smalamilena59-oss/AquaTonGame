@@ -694,6 +694,19 @@
             text-align: center;
             margin-top: 16px;
         }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #48cae4, #2c7da0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 28px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -846,13 +859,20 @@
             <div class="card-header">
                 <h3><i class="fas fa-user-circle"></i> Профиль</h3>
             </div>
-            <div class="balance-card" style="margin-bottom:16px; cursor:default;">
-                <small>👤 Имя пользователя</small>
-                <div class="value" id="user-name">Загрузка...</div>
+            <div class="profile-avatar" id="profile-avatar">
+                <span id="avatar-letter">👤</span>
             </div>
             <div class="balance-card" style="margin-bottom:16px; cursor:default;">
-                <small>🆔 ID</small>
-                <div class="value" id="user-id">Загрузка...</div>
+                <small>👤 Имя пользователя</small>
+                <div class="value" id="user-name" style="font-size:1.2rem;">Загрузка...</div>
+            </div>
+            <div class="balance-card" style="margin-bottom:16px; cursor:default;">
+                <small>🆔 Telegram ID</small>
+                <div class="value" id="user-id" style="font-size:1rem;">Загрузка...</div>
+            </div>
+            <div class="balance-card" style="cursor:default;">
+                <small>📅 На платформе</small>
+                <div class="value" id="user-since">Сегодня</div>
             </div>
         </div>
         <div class="card">
@@ -946,29 +966,87 @@
 </div>
 
 <script>
-    // Получение данных пользователя из Telegram WebApp
+    // Получение данных пользователя из Telegram WebApp - УЛУЧШЕННАЯ ВЕРСИЯ
     let tg = window.Telegram?.WebApp;
     let userData = null;
+    let userName = "Гость";
+    let userId = "unknown";
+    
+    console.log("Telegram WebApp доступен:", !!tg);
     
     if (tg) {
         tg.ready();
         tg.expand();
-        userData = tg.initDataUnsafe?.user;
+        
+        // Пробуем получить данные разными способами
+        if (tg.initDataUnsafe?.user) {
+            userData = tg.initDataUnsafe.user;
+            console.log("Данные пользователя из initDataUnsafe:", userData);
+        } else if (tg.initData) {
+            // Парсим initData если user не напрямую доступен
+            try {
+                const params = new URLSearchParams(tg.initData);
+                const userParam = params.get('user');
+                if (userParam) {
+                    userData = JSON.parse(decodeURIComponent(userParam));
+                    console.log("Данные пользователя из initData:", userData);
+                }
+            } catch(e) {
+                console.error("Ошибка парсинга initData:", e);
+            }
+        }
+        
+        // Если данные получены, формируем имя
+        if (userData) {
+            // Приоритет: username > first_name + last_name > id
+            if (userData.username) {
+                userName = "@" + userData.username;
+            } else if (userData.first_name) {
+                userName = userData.first_name;
+                if (userData.last_name) {
+                    userName += " " + userData.last_name;
+                }
+            } else {
+                userName = "Пользователь " + userData.id;
+            }
+            userId = userData.id;
+        } else {
+            // Если нет данных, пробуем получить через WebApp.initDataUnsafe
+            console.warn("Не удалось получить данные пользователя, проверьте настройки бота");
+            // В демо-режиме создаем временного пользователя
+            userName = "Telegram User";
+            userId = Math.floor(Math.random() * 10000000);
+        }
+    } else {
+        // Локальная разработка
+        console.log("Локальный режим (не Telegram)");
+        userName = "Demo User";
+        userId = Math.floor(Math.random() * 10000000);
     }
     
-    // Если нет Telegram WebApp (для теста локально)
-    if (!userData) {
-        userData = {
-            id: Math.floor(Math.random() * 10000000),
-            username: "guest_" + Math.floor(Math.random() * 1000),
-            first_name: "Гость",
-            last_name: ""
-        };
+    // Функция для получения первой буквы для аватара
+    function getFirstLetter(name) {
+        if (!name) return "👤";
+        // Убираем @ если есть
+        let cleanName = name.replace(/^@/, '');
+        if (cleanName.length === 0) return "👤";
+        // Если русская буква
+        if (/[а-яА-Я]/.test(cleanName[0])) {
+            return cleanName[0].toUpperCase();
+        }
+        // Если латиница
+        if (/[a-zA-Z]/.test(cleanName[0])) {
+            return cleanName[0].toUpperCase();
+        }
+        return "👤";
     }
     
-    const userIdTelegram = userData.id || "unknown";
-    const userNameTelegram = userData.username || (userData.first_name + (userData.last_name ? " " + userData.last_name : ""));
-    const displayName = userNameTelegram || `Player_${userIdTelegram.toString().slice(-6)}`;
+    // Устанавливаем имя пользователя для отображения
+    const displayName = userName;
+    const userIdTelegram = userId;
+    const userFirstLetter = getFirstLetter(displayName);
+    
+    console.log("Итоговые данные:", { displayName, userIdTelegram });
     
     const CREATURES = [
         { id: "mollusk", name: "Жемчужный Моллюск", price: 0.5, earn: 0.01, svg: '<svg viewBox="0 0 100 100"><defs><radialGradient id="shellGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F5E6D3"/><stop offset="100%" stop-color="#D4B48C"/></radialGradient></defs><circle cx="50" cy="50" r="36" fill="url(#shellGrad)" stroke="#B87C4F" stroke-width="2"/><path d="M30 50 L70 50" stroke="#9B6A3E" stroke-width="3"/><circle cx="38" cy="45" r="4" fill="white"/><circle cx="62" cy="45" r="4" fill="white"/><circle cx="40" cy="44" r="2" fill="#2C1A0E"/><circle cx="64" cy="44" r="2" fill="#2C1A0E"/><ellipse cx="50" cy="66" rx="14" ry="7" fill="#E8C49A"/><circle cx="50" cy="58" r="5" fill="#FFE4C4" stroke="#FFAA66" stroke-width="1"/><circle cx="48" cy="57" r="1.5" fill="#FFD966"/></svg>' },
@@ -990,6 +1068,7 @@
     let bubbleOrders = [];
     let currentMarketTab = "all";
     let currentFinanceTab = "deposit";
+    let joinDate = new Date();
 
     function findCreature(id) { return CREATURES.find(c => c.id === id); }
     function hasMollusk() { return inventory.some(p => p.creatureId === "mollusk"); }
@@ -1160,6 +1239,14 @@
         document.getElementById("timer-display").innerHTML = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
     }
 
+    function formatDate(date) {
+        const now = new Date();
+        const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+        if (diffDays === 0) return "Сегодня";
+        if (diffDays === 1) return "Вчера";
+        return `${diffDays} дней назад`;
+    }
+
     function renderUI() {
         document.getElementById("ton-balance").innerText = userTon.toFixed(2);
         document.getElementById("bubble-balance").innerText = Math.floor(userBubbles);
@@ -1169,6 +1256,8 @@
         // Отображение профиля
         document.getElementById("user-name").innerHTML = displayName;
         document.getElementById("user-id").innerHTML = userIdTelegram;
+        document.getElementById("user-since").innerHTML = formatDate(joinDate);
+        document.getElementById("avatar-letter").innerHTML = userFirstLetter;
 
         let invHtml = "";
         if (inventory.length === 0) invHtml = "<div style='padding:25px;text-align:center;opacity:0.7;'>🐠 Нет обитателей. Купите в магазине!</div>";
@@ -1232,7 +1321,7 @@
     }
 
     function saveGame() {
-        localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify({ inventory, userTon, userBubbles, lastHourTimestamp, wheelCooldown, referrals, bubbleOrders }));
+        localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify({ inventory, userTon, userBubbles, lastHourTimestamp, wheelCooldown, referrals, bubbleOrders, joinDate: joinDate.toISOString() }));
     }
     
     function loadGame() {
@@ -1247,6 +1336,7 @@
                 wheelCooldown = d.wheelCooldown ?? 0;
                 referrals = d.referrals ?? 0;
                 bubbleOrders = d.bubbleOrders || [];
+                if (d.joinDate) joinDate = new Date(d.joinDate);
             } catch(e) {}
         }
         autoGrantBubbles();
@@ -1355,6 +1445,10 @@
     
     // Запускаем splash screen
     hideSplash();
+    
+    // Выводим в консоль для отладки
+    console.log("AquaTON загружен!");
+    console.log("Пользователь:", displayName, "ID:", userIdTelegram);
 </script>
 </body>
 </html>
