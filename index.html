@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>AquaTON | Премиум Океанариум</title>
+    <title>AquaTON | Океанариум</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
@@ -24,85 +24,6 @@
             overflow-x: hidden;
         }
 
-        /* Splash Screen - красивая загрузка */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(145deg, #0a2f44 0%, #00152b 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
-        }
-
-        .splash-content {
-            text-align: center;
-            animation: splashPulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes splashPulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-        }
-
-        .splash-logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 24px;
-            animation: splashFloat 2s ease-in-out infinite;
-        }
-
-        @keyframes splashFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .splash-title {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(95deg, #7AD0E8, #FFD966);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 12px;
-        }
-
-        .splash-subtitle {
-            font-size: 0.9rem;
-            opacity: 0.7;
-            letter-spacing: 2px;
-        }
-
-        .splash-wave {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .splash-wave span {
-            width: 8px;
-            height: 8px;
-            background: #7AD0E8;
-            border-radius: 50%;
-            animation: wave 1s ease-in-out infinite;
-        }
-
-        .splash-wave span:nth-child(1) { animation-delay: 0s; }
-        .splash-wave span:nth-child(2) { animation-delay: 0.2s; }
-        .splash-wave span:nth-child(3) { animation-delay: 0.4s; }
-        .splash-wave span:nth-child(4) { animation-delay: 0.6s; }
-        .splash-wave span:nth-child(5) { animation-delay: 0.8s; }
-
-        @keyframes wave {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.5); opacity: 1; }
-        }
-
         .ocean-bg {
             position: fixed;
             top: 0;
@@ -111,7 +32,6 @@
             height: 100%;
             background: radial-gradient(ellipse at 30% 40%, rgba(0,100,130,0.5) 0%, rgba(0,30,50,0.9) 100%);
             z-index: 0;
-            overflow: hidden;
         }
 
         .sun-rays {
@@ -154,7 +74,6 @@
             pointer-events: none;
             z-index: 1;
             animation: rise linear infinite;
-            box-shadow: 0 0 12px rgba(255,255,200,0.4);
         }
 
         @keyframes rise {
@@ -168,12 +87,6 @@
             position: relative;
             z-index: 2;
             padding: 16px;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .container.loaded {
-            opacity: 1;
         }
 
         .header {
@@ -183,7 +96,6 @@
             padding: 20px;
             margin-bottom: 20px;
             border: 1px solid rgba(100,210,250,0.5);
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.4);
         }
 
         .balance-grid {
@@ -201,8 +113,6 @@
             border: 1px solid rgba(100,210,250,0.4);
             cursor: pointer;
             transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .balance-card:active {
@@ -212,14 +122,12 @@
         .balance-card small {
             font-size: 11px;
             opacity: 0.7;
-            letter-spacing: 0.5px;
         }
 
         .balance-card .value {
             font-size: 1.7rem;
             font-weight: 800;
             margin-top: 6px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         .ton-value { color: #FFD966; }
@@ -241,7 +149,6 @@
             font-size: 1.3rem;
             font-weight: bold;
             color: #FFD966;
-            letter-spacing: 2px;
             background: rgba(0,0,0,0.4);
             padding: 5px 12px;
             border-radius: 40px;
@@ -289,7 +196,7 @@
 
         .content-page {
             display: none;
-            animation: fadeUp 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            animation: fadeUp 0.4s ease;
         }
 
         .content-page.active {
@@ -308,7 +215,6 @@
             border: 1px solid rgba(100,210,250,0.35);
             padding: 20px;
             margin-bottom: 18px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.25);
         }
 
         .card-header {
@@ -340,21 +246,6 @@
             overflow-y: hidden;
             white-space: nowrap;
             padding: 8px 0;
-            scroll-behavior: smooth;
-        }
-
-        .scroll-x::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .scroll-x::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-        }
-
-        .scroll-x::-webkit-scrollbar-thumb {
-            background: #48cae4;
-            border-radius: 10px;
         }
 
         .scroll-items {
@@ -373,7 +264,6 @@
             display: inline-block;
             border: 1px solid rgba(100,210,250,0.5);
             transition: all 0.3s ease;
-            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
         }
 
         .animal-card:hover {
@@ -381,22 +271,17 @@
             border-color: #FFD966;
         }
 
-        .animal-img {
-            width: 100px;
-            height: 100px;
+        .animal-emoji {
+            font-size: 4.5rem;
             margin: 0 auto 12px;
             filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4));
             animation: gentleFloat 3s ease-in-out infinite;
+            display: block;
         }
 
         @keyframes gentleFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-4px); }
-        }
-
-        .animal-img svg {
-            width: 95px;
-            height: 95px;
         }
 
         .animal-name {
@@ -431,7 +316,6 @@
             border-radius: 40px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.85rem;
         }
 
         button:active { transform: scale(0.95); }
@@ -439,7 +323,6 @@
         .btn-gold {
             background: linear-gradient(95deg, #f9c74f, #f9844a);
             color: #1f3a3f;
-            font-weight: 700;
         }
 
         .order-card {
@@ -488,10 +371,7 @@
             color: white;
             font-weight: 500;
             flex: 1;
-            font-size: 1rem;
         }
-
-        input::placeholder { color: #8aaebf; }
 
         .market-tabs {
             display: flex;
@@ -506,7 +386,6 @@
             background: rgba(0,0,0,0.35);
             border-radius: 40px;
             cursor: pointer;
-            transition: all 0.2s;
             font-weight: 600;
         }
 
@@ -543,7 +422,6 @@
             font-family: monospace;
         }
 
-        /* Модальное окно */
         .finance-modal {
             display: none;
             position: fixed;
@@ -565,18 +443,6 @@
             width: 90%;
             max-width: 380px;
             border: 1px solid #FFD966;
-            animation: modalSlide 0.3s ease;
-        }
-
-        @keyframes modalSlide {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .finance-modal-content h2 {
-            text-align: center;
-            margin-bottom: 24px;
-            font-size: 1.6rem;
         }
 
         .finance-tabs {
@@ -593,30 +459,11 @@
             border-radius: 40px;
             cursor: pointer;
             font-weight: 700;
-            transition: all 0.2s;
         }
 
         .finance-tab.active {
             background: linear-gradient(95deg, #f9c74f, #f9844a);
             color: #1f3a3f;
-        }
-
-        .amount-input {
-            margin-bottom: 20px;
-        }
-
-        .amount-input label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 13px;
-            opacity: 0.8;
-        }
-
-        .amount-input input {
-            width: 100%;
-            padding: 16px;
-            font-size: 1.2rem;
-            text-align: center;
         }
 
         .quick-amounts {
@@ -635,12 +482,6 @@
             border-radius: 30px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .quick-amount:active {
-            background: #48cae4;
-            transform: scale(0.95);
         }
 
         .address-info {
@@ -648,16 +489,6 @@
             border-radius: 24px;
             padding: 16px;
             margin-bottom: 20px;
-        }
-
-        .address-row {
-            margin-bottom: 12px;
-        }
-
-        .address-row .label {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-bottom: 4px;
         }
 
         .address-row .value {
@@ -684,64 +515,41 @@
             margin-top: 20px;
         }
 
-        .modal-buttons button {
-            flex: 1;
-        }
-
-        .warning-text {
-            font-size: 11px;
-            opacity: 0.6;
-            text-align: center;
-            margin-top: 16px;
-        }
-
         .profile-avatar {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background: linear-gradient(135deg, #48cae4, #2c7da0);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 12px;
-            font-size: 28px;
+            margin: 0 auto 16px;
+            font-size: 32px;
             font-weight: bold;
+        }
+
+        .info-text {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .info-text i {
+            color: #7AD0E8;
+            margin-right: 6px;
         }
     </style>
 </head>
 <body>
-<!-- Splash Screen -->
-<div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-        <div class="splash-logo">
-            <svg width="120" height="120" viewBox="0 0 100 100" fill="none">
-                <defs>
-                    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#7AD0E8"/>
-                        <stop offset="100%" stop-color="#FFD966"/>
-                    </linearGradient>
-                </defs>
-                <circle cx="50" cy="50" r="45" fill="url(#logoGrad)" opacity="0.3"/>
-                <path d="M50 20 L65 35 L70 50 L65 65 L50 80 L35 65 L30 50 L35 35 Z" fill="url(#logoGrad)"/>
-                <circle cx="42" cy="45" r="3" fill="white"/>
-                <circle cx="58" cy="45" r="3" fill="white"/>
-                <path d="M45 55 L55 55" stroke="white" stroke-width="2"/>
-            </svg>
-        </div>
-        <div class="splash-title">AquaTON</div>
-        <div class="splash-subtitle">Океанский фермерский рынок</div>
-        <div class="splash-wave">
-            <span></span><span></span><span></span><span></span><span></span>
-        </div>
-    </div>
-</div>
-
 <div class="ocean-bg">
     <div class="sun-rays"></div>
     <div class="wave-overlay"></div>
 </div>
 <div id="bubbles-container"></div>
-<div class="container" id="mainContainer">
+<div class="container">
     <div class="header">
         <div class="balance-grid">
             <div class="balance-card" id="ton-balance-card">
@@ -776,12 +584,13 @@
         <div class="card">
             <div class="card-header">
                 <h3><i class="fas fa-store"></i> Магазин</h3>
-                <i class="fas fa-arrow-right" style="opacity:0.6;"></i>
             </div>
             <div class="scroll-x">
                 <div class="scroll-items" id="shop-list"></div>
             </div>
-            <small style="opacity:0.6;"><i class="fas fa-info-circle"></i> Каждый обитатель приносит пузыри РАЗ В ЧАС (автоматически)</small>
+            <div class="info-text">
+                <i class="fas fa-info-circle"></i> Каждый обитатель приносит пузыри РАЗ В ЧАС (автоматически)
+            </div>
         </div>
     </div>
 
@@ -802,7 +611,7 @@
                     <input type="number" id="order-amount" placeholder="Количество" step="10">
                     <input type="number" id="order-price" placeholder="Цена в TON" step="0.1">
                 </div>
-                <button id="create-sell-order" class="btn-gold" style="width:100%;"><i class="fas fa-sell-sign"></i> Выставить на продажу</button>
+                <button id="create-sell-order" class="btn-gold" style="width:100%;">Выставить на продажу</button>
             </div>
         </div>
     </div>
@@ -843,7 +652,7 @@
             </div>
             <p>Приглашайте друзей и получайте 0.5 TON за каждого!</p>
             <div class="referral-link" id="referral-link"></div>
-            <button id="copy-link" class="btn-gold"><i class="fas fa-copy"></i> Копировать ссылку</button>
+            <button id="copy-link" class="btn-gold">Копировать ссылку</button>
             <div style="margin-top: 20px;">
                 <div class="balance-card" style="cursor:default;">
                     <small>За регистрацию друга</small>
@@ -859,25 +668,22 @@
             <div class="card-header">
                 <h3><i class="fas fa-user-circle"></i> Профиль</h3>
             </div>
-            <div class="profile-avatar" id="profile-avatar">
-                <span id="avatar-letter">👤</span>
-            </div>
+            <div class="profile-avatar" id="profile-avatar">🐠</div>
             <div class="balance-card" style="margin-bottom:16px; cursor:default;">
-                <small>👤 Имя пользователя</small>
+                <small>👤 Имя</small>
                 <div class="value" id="user-name" style="font-size:1.2rem;">Загрузка...</div>
             </div>
-            <div class="balance-card" style="margin-bottom:16px; cursor:default;">
-                <small>🆔 Telegram ID</small>
+            <div class="balance-card" style="cursor:default;">
+                <small>🆔 ID</small>
                 <div class="value" id="user-id" style="font-size:1rem;">Загрузка...</div>
             </div>
-            <div class="balance-card" style="cursor:default;">
-                <small>📅 На платформе</small>
-                <div class="value" id="user-since">Сегодня</div>
+            <div class="info-text">
+                <i class="fas fa-clock"></i> Для пополнения и вывода нажмите на баланс TON
             </div>
         </div>
         <div class="card">
             <h3><i class="fas fa-info-circle"></i> Помощь</h3>
-            <button id="support-btn" style="width:100%;"><i class="fas fa-headset"></i> Техподдержка</button>
+            <button id="support-btn" style="width:100%;">Техподдержка</button>
         </div>
     </div>
 </div>
@@ -894,7 +700,7 @@
 <!-- Модальное окно Финансы -->
 <div id="finance-modal" class="finance-modal">
     <div class="finance-modal-content">
-        <h2><i class="fas fa-coins"></i> Финансы</h2>
+        <h2 style="text-align:center;"><i class="fas fa-coins"></i> Финансы</h2>
         <div class="finance-tabs">
             <div class="finance-tab active" data-finance-tab="deposit">💰 Пополнить</div>
             <div class="finance-tab" data-finance-tab="withdraw">💸 Вывести</div>
@@ -903,7 +709,7 @@
         <div id="deposit-section">
             <div class="amount-input">
                 <label>Введите сумму TON</label>
-                <input type="number" id="deposit-amount" placeholder="0.0000" step="0.1" value="">
+                <input type="number" id="deposit-amount" placeholder="0.0000" step="0.1">
             </div>
             <div class="quick-amounts">
                 <div class="quick-amount" data-amount="0.5">0.5</div>
@@ -912,32 +718,31 @@
                 <div class="quick-amount" data-amount="5">5</div>
                 <div class="quick-amount" data-amount="10">10</div>
             </div>
-            
             <div class="address-info">
                 <div class="address-row">
-                    <div class="label">📍 Адрес для депозита</div>
-                    <div class="value" id="deposit-address">
-                        <span id="deposit-addr-text">UQBCd1zLGtOtzkgZhIs_IjGuOXoOdIHn31I_1DrXwny7r8cD</span>
+                    <div class="label">📍 Адрес для пополнения</div>
+                    <div class="value">
+                        <span id="deposit-addr-text">UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk</span>
                         <button class="copy-btn" data-copy="deposit-addr-text"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>
                 <div class="address-row">
-                    <div class="label">📝 Мемо (обязательно)</div>
-                    <div class="value" id="deposit-memo">
-                        <span id="deposit-memo-text">AQUA_</span>
+                    <div class="label">📝 Ваш мемо (обязательно!)</div>
+                    <div class="value">
+                        <span id="deposit-memo-text"></span>
                         <button class="copy-btn" data-copy="deposit-memo-text"><i class="fas fa-copy"></i></button>
                     </div>
                 </div>
             </div>
-            <div class="warning-text">
-                <i class="fas fa-exclamation-triangle"></i> Отправляйте ТОЛЬКО TON. Обязательно укажите мемо!
+            <div class="info-text">
+                <i class="fas fa-info-circle"></i> После отправки TON с указанным мемо, администратор подтвердит пополнение
             </div>
         </div>
         
         <div id="withdraw-section" style="display: none;">
             <div class="amount-input">
                 <label>Сумма вывода (мин. 1 TON)</label>
-                <input type="number" id="withdraw-amount" placeholder="0.0000" step="0.1" value="">
+                <input type="number" id="withdraw-amount" placeholder="0.0000" step="0.1">
             </div>
             <div class="quick-amounts">
                 <div class="quick-amount" data-withdraw="1">1</div>
@@ -946,119 +751,60 @@
                 <div class="quick-amount" data-withdraw="25">25</div>
                 <div class="quick-amount" data-withdraw="50">50</div>
             </div>
-            
             <div class="address-info">
                 <div class="address-row">
-                    <div class="label">📤 Адрес кошелька для вывода</div>
-                    <input type="text" id="withdraw-address" placeholder="EQD... или UQD..." style="width:100%; margin-top:5px;">
+                    <div class="label">📤 Адрес для вывода</div>
+                    <input type="text" id="withdraw-address" placeholder="EQD... или UQD...">
                 </div>
             </div>
-            <div class="warning-text">
-                <i class="fas fa-info-circle"></i> Комиссия сети: 0.05 TON. Минимальная сумма вывода: 1 TON
+            <div class="info-text">
+                <i class="fas fa-info-circle"></i> После отправки заявки, администратор обработает вывод в течение 24 часов
             </div>
         </div>
         
         <div class="modal-buttons">
-            <button id="finance-confirm" class="btn-gold">Подтвердить</button>
+            <button id="finance-confirm" class="btn-gold">Отправить заявку</button>
             <button id="finance-cancel">Отмена</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Получение данных пользователя из Telegram WebApp - УЛУЧШЕННАЯ ВЕРСИЯ
+    // ========== ПОЛУЧЕНИЕ ДАННЫХ ИЗ TELEGRAM ==========
     let tg = window.Telegram?.WebApp;
-    let userData = null;
     let userName = "Гость";
     let userId = "unknown";
-    
-    console.log("Telegram WebApp доступен:", !!tg);
     
     if (tg) {
         tg.ready();
         tg.expand();
-        
-        // Пробуем получить данные разными способами
         if (tg.initDataUnsafe?.user) {
-            userData = tg.initDataUnsafe.user;
-            console.log("Данные пользователя из initDataUnsafe:", userData);
-        } else if (tg.initData) {
-            // Парсим initData если user не напрямую доступен
-            try {
-                const params = new URLSearchParams(tg.initData);
-                const userParam = params.get('user');
-                if (userParam) {
-                    userData = JSON.parse(decodeURIComponent(userParam));
-                    console.log("Данные пользователя из initData:", userData);
-                }
-            } catch(e) {
-                console.error("Ошибка парсинга initData:", e);
-            }
-        }
-        
-        // Если данные получены, формируем имя
-        if (userData) {
-            // Приоритет: username > first_name + last_name > id
-            if (userData.username) {
-                userName = "@" + userData.username;
-            } else if (userData.first_name) {
-                userName = userData.first_name;
-                if (userData.last_name) {
-                    userName += " " + userData.last_name;
-                }
-            } else {
-                userName = "Пользователь " + userData.id;
-            }
-            userId = userData.id;
-        } else {
-            // Если нет данных, пробуем получить через WebApp.initDataUnsafe
-            console.warn("Не удалось получить данные пользователя, проверьте настройки бота");
-            // В демо-режиме создаем временного пользователя
-            userName = "Telegram User";
-            userId = Math.floor(Math.random() * 10000000);
+            let u = tg.initDataUnsafe.user;
+            userName = u.username ? "@" + u.username : (u.first_name || "Пользователь");
+            userId = u.id;
         }
     } else {
-        // Локальная разработка
-        console.log("Локальный режим (не Telegram)");
+        // Для локального теста
         userName = "Demo User";
         userId = Math.floor(Math.random() * 10000000);
     }
     
-    // Функция для получения первой буквы для аватара
-    function getFirstLetter(name) {
-        if (!name) return "👤";
-        // Убираем @ если есть
-        let cleanName = name.replace(/^@/, '');
-        if (cleanName.length === 0) return "👤";
-        // Если русская буква
-        if (/[а-яА-Я]/.test(cleanName[0])) {
-            return cleanName[0].toUpperCase();
-        }
-        // Если латиница
-        if (/[a-zA-Z]/.test(cleanName[0])) {
-            return cleanName[0].toUpperCase();
-        }
-        return "👤";
-    }
-    
-    // Устанавливаем имя пользователя для отображения
     const displayName = userName;
     const userIdTelegram = userId;
-    const userFirstLetter = getFirstLetter(displayName);
     
-    console.log("Итоговые данные:", { displayName, userIdTelegram });
-    
+    // ========== ЖИВОТНЫЕ ==========
     const CREATURES = [
-        { id: "mollusk", name: "Жемчужный Моллюск", price: 0.5, earn: 0.01, svg: '<svg viewBox="0 0 100 100"><defs><radialGradient id="shellGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#F5E6D3"/><stop offset="100%" stop-color="#D4B48C"/></radialGradient></defs><circle cx="50" cy="50" r="36" fill="url(#shellGrad)" stroke="#B87C4F" stroke-width="2"/><path d="M30 50 L70 50" stroke="#9B6A3E" stroke-width="3"/><circle cx="38" cy="45" r="4" fill="white"/><circle cx="62" cy="45" r="4" fill="white"/><circle cx="40" cy="44" r="2" fill="#2C1A0E"/><circle cx="64" cy="44" r="2" fill="#2C1A0E"/><ellipse cx="50" cy="66" rx="14" ry="7" fill="#E8C49A"/><circle cx="50" cy="58" r="5" fill="#FFE4C4" stroke="#FFAA66" stroke-width="1"/><circle cx="48" cy="57" r="1.5" fill="#FFD966"/></svg>' },
-        { id: "shrimp", name: "Королевская Креветка", price: 2, earn: 0.03, svg: '<svg viewBox="0 0 100 100"><defs><linearGradient id="shrimpGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFAA77"/><stop offset="100%" stop-color="#FF6644"/></linearGradient></defs><path d="M50 22 L70 34 L78 52 L70 70 L50 82 L30 70 L22 52 L30 34 Z" fill="url(#shrimpGrad)" stroke="#CC5533" stroke-width="2"/><circle cx="38" cy="48" r="4" fill="white"/><circle cx="62" cy="48" r="4" fill="white"/><circle cx="40" cy="47" r="2" fill="#331A0A"/><circle cx="64" cy="47" r="2" fill="#331A0A"/><path d="M82 52 L96 48 L96 56 Z" fill="#FF8866"/><path d="M18 52 L4 48 L4 56 Z" fill="#FF8866"/></svg>' },
-        { id: "seahorse", name: "Изумрудный Конёк", price: 5, earn: 0.07, svg: '<svg viewBox="0 0 100 100"><defs><linearGradient id="seahorseGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7ED957"/><stop offset="100%" stop-color="#3BA02B"/></linearGradient></defs><path d="M50 16 L57 35 L60 58 L52 78 L48 78 L40 58 L43 35 Z" fill="url(#seahorseGrad)" stroke="#2D6A1F" stroke-width="2"/><circle cx="50" cy="42" r="5" fill="white"/><circle cx="49" cy="41" r="2" fill="#1A3A0E"/></svg>' },
-        { id: "clown", name: "Анемоновая Рыбка", price: 10, earn: 0.15, svg: '<svg viewBox="0 0 100 100"><defs><linearGradient id="clownGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFAA55"/><stop offset="100%" stop-color="#FF6633"/></linearGradient></defs><ellipse cx="50" cy="50" rx="34" ry="25" fill="url(#clownGrad)" stroke="#DD5522" stroke-width="2"/><circle cx="38" cy="46" r="4.5" fill="white"/><circle cx="62" cy="46" r="4.5" fill="white"/><circle cx="40" cy="45" r="2" fill="#2A1A0A"/><circle cx="64" cy="45" r="2" fill="#2A1A0A"/><path d="M44 62 L56 62" stroke="black" stroke-width="3"/></svg>' },
-        { id: "turtle", name: "Морская Черепаха", price: 25, earn: 0.4, svg: '<svg viewBox="0 0 100 100"><defs><radialGradient id="turtleGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#8BB56A"/><stop offset="100%" stop-color="#5A7A3A"/></radialGradient></defs><ellipse cx="50" cy="58" rx="32" ry="23" fill="url(#turtleGrad)" stroke="#4A6A2A"/><circle cx="38" cy="48" r="5" fill="white"/><circle cx="62" cy="48" r="5" fill="white"/></svg>' },
-        { id: "octopus", name: "Гигантский Осьминог", price: 50, earn: 0.85, svg: '<svg viewBox="0 0 100 100"><defs><radialGradient id="octoGrad" cx="50%" cy="45%" r="50%"><stop offset="0%" stop-color="#C0885A"/><stop offset="100%" stop-color="#A55A2A"/></radialGradient></defs><circle cx="50" cy="45" r="25" fill="url(#octoGrad)" stroke="#8B4513"/><circle cx="38" cy="42" r="4.5" fill="white"/><circle cx="62" cy="42" r="4.5" fill="white"/><path d="M26 68 L18 82 L32 74 M74 68 L82 82 L68 74" stroke="#8B4513" fill="none" stroke-width="3"/></svg>' },
-        { id: "shark", name: "Белая Акула", price: 80, earn: 1.5, svg: '<svg viewBox="0 0 100 100"><defs><linearGradient id="sharkGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6C8F9F"/><stop offset="100%" stop-color="#3A6B7A"/></linearGradient></defs><path d="M26 52 L48 26 L77 34 L88 52 L77 70 L48 78 L26 52Z" fill="url(#sharkGrad)" stroke="#2A5565"/><circle cx="44" cy="48" r="4.5" fill="white"/><circle cx="68" cy="48" r="4.5" fill="white"/></svg>' },
-        { id: "whale", name: "Синий Кит", price: 100, earn: 2.0, svg: '<svg viewBox="0 0 100 100"><defs><radialGradient id="whaleGrad" cx="60%" cy="50%" r="60%"><stop offset="0%" stop-color="#4A8AB0"/><stop offset="100%" stop-color="#1E4A6A"/></radialGradient></defs><ellipse cx="58" cy="52" rx="37" ry="25" fill="url(#whaleGrad)" stroke="#135A7A"/><circle cx="42" cy="46" r="5.5" fill="white"/><circle cx="44" cy="45" r="2.8" fill="#0A2A3A"/><path d="M80 48 L96 42 L96 54 Z" fill="#4A8AB0"/></svg>' }
+        { id: "mollusk", name: "Жемчужный Моллюск", price: 0.5, earn: 0.01, emoji: "🐚" },
+        { id: "shrimp", name: "Королевская Креветка", price: 2, earn: 0.03, emoji: "🦐" },
+        { id: "seahorse", name: "Изумрудный Конёк", price: 5, earn: 0.07, emoji: "🐠" },
+        { id: "clown", name: "Рыбка-клоун", price: 10, earn: 0.15, emoji: "🐟" },
+        { id: "turtle", name: "Морская Черепаха", price: 25, earn: 0.4, emoji: "🐢" },
+        { id: "octopus", name: "Гигантский Осьминог", price: 50, earn: 0.85, emoji: "🐙" },
+        { id: "shark", name: "Белая Акула", price: 80, earn: 1.5, emoji: "🦈" },
+        { id: "whale", name: "Синий Кит", price: 100, earn: 2.0, emoji: "🐋" }
     ];
-
+    
+    // ========== ИГРОВЫЕ ДАННЫЕ ==========
     let inventory = [];
     let userTon = 0;
     let userBubbles = 0;
@@ -1068,12 +814,75 @@
     let bubbleOrders = [];
     let currentMarketTab = "all";
     let currentFinanceTab = "deposit";
-    let joinDate = new Date();
-
+    
+    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     function findCreature(id) { return CREATURES.find(c => c.id === id); }
     function hasMollusk() { return inventory.some(p => p.creatureId === "mollusk"); }
     function totalEarnPerHour() { return inventory.reduce((s, p) => s + findCreature(p.creatureId).earn, 0); }
-
+    
+    // ========== ОТПРАВКА ЗАЯВОК В БОТА ==========
+    function sendToBot(data) {
+        if (tg) {
+            tg.sendData(JSON.stringify(data));
+            console.log("Отправлено в бота:", data);
+        } else {
+            console.log("Демо-режим:", data);
+        }
+    }
+    
+    // ========== ЗАЯВКА НА ПОПОЛНЕНИЕ ==========
+    function sendDepositRequest(amount) {
+        if (!amount || amount <= 0) {
+            alert("Введите сумму пополнения");
+            return false;
+        }
+        
+        const memo = `AQUA_${userIdTelegram}`;
+        
+        sendToBot({
+            type: "deposit",
+            amount: amount,
+            memo: memo,
+            userId: userIdTelegram,
+            userName: displayName
+        });
+        
+        alert(`✅ Заявка на пополнение ${amount} TON отправлена!\n\n📍 Адрес: UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk\n📝 Ваш мемо: ${memo}\n\nАдминистратор обработает заявку после получения средств.`);
+        return true;
+    }
+    
+    // ========== ЗАЯВКА НА ВЫВОД ==========
+    function sendWithdrawRequest(amount, address) {
+        if (!amount || amount <= 0) {
+            alert("Введите сумму вывода");
+            return false;
+        }
+        if (amount < 1) {
+            alert("Минимальная сумма вывода: 1 TON");
+            return false;
+        }
+        if (userTon < amount) {
+            alert(`❌ Недостаточно средств! Доступно: ${userTon.toFixed(2)} TON`);
+            return false;
+        }
+        if (!address || address.length < 10) {
+            alert("Введите корректный адрес кошелька");
+            return false;
+        }
+        
+        sendToBot({
+            type: "withdraw",
+            amount: amount,
+            address: address,
+            userId: userIdTelegram,
+            userName: displayName
+        });
+        
+        alert(`✅ Заявка на вывод ${amount} TON отправлена!\n📍 Адрес: ${address.substring(0, 15)}...\n\nАдминистратор обработает заявку в течение 24 часов.`);
+        return true;
+    }
+    
+    // ========== АВТОМАТИЧЕСКОЕ НАЧИСЛЕНИЕ ПУЗЫРЕЙ ==========
     function autoGrantBubbles() {
         const now = Math.floor(Date.now() / 1000);
         const currentHour = Math.floor(now / 3600) * 3600;
@@ -1099,7 +908,8 @@
         }
         renderUI();
     }
-
+    
+    // ========== ПОКУПКА ЖИВОТНОГО ==========
     function buyCreature(id) {
         let c = findCreature(id);
         if (userTon >= c.price) {
@@ -1109,16 +919,24 @@
             renderUI();
         } else alert(`Не хватает TON! Нужно ${c.price} TON`);
     }
-
+    
+    // ========== РЫНОК ПУЗЫРЕЙ ==========
     function createOrder(amount, priceTon) {
         if (amount <= 0 || priceTon <= 0) return alert("Введите корректные значения");
         if (userBubbles < amount) return alert(`У вас только ${Math.floor(userBubbles)} пузырей`);
         userBubbles -= amount;
-        bubbleOrders.push({ id: Date.now() + Math.random(), amount: amount, priceTon: priceTon, seller: displayName });
+        bubbleOrders.push({ 
+            id: Date.now() + Math.random(), 
+            amount: amount, 
+            priceTon: priceTon, 
+            seller: displayName, 
+            userId: userIdTelegram,
+            createdAt: Date.now()
+        });
         saveGame();
         renderUI();
     }
-
+    
     function buyOrder(orderId) {
         let order = bubbleOrders.find(o => o.id === orderId);
         if (!order) return alert("Заказ не найден");
@@ -1130,17 +948,18 @@
             renderUI();
         } else alert("Не хватает TON");
     }
-
+    
     function cancelOrder(orderId) {
         let order = bubbleOrders.find(o => o.id === orderId);
-        if (order && order.seller === displayName) {
+        if (order && order.userId === userIdTelegram) {
             userBubbles += order.amount;
             bubbleOrders = bubbleOrders.filter(o => o.id !== orderId);
             saveGame();
             renderUI();
         }
     }
-
+    
+    // ========== КОЛЕСО ФОРТУНЫ ==========
     function spinWheel() {
         if (!hasMollusk()) return alert("Купите Моллюска за 0.5 TON!");
         if (wheelCooldown > Date.now()) {
@@ -1161,17 +980,22 @@
         saveGame();
         renderUI();
         setTimeout(() => document.getElementById("wheel-result").innerHTML = "", 2500);
+        
+        const wheel = document.getElementById("wheel");
+        wheel.style.transform = `rotate(${720 + Math.random() * 720}deg)`;
+        setTimeout(() => wheel.style.transform = "", 3000);
     }
-
+    
+    // ========== UI ФУНКЦИИ ==========
     function showFinanceModal() {
         document.getElementById("finance-modal").style.display = "flex";
         updateFinanceUI();
     }
-
+    
     function closeFinanceModal() {
         document.getElementById("finance-modal").style.display = "none";
     }
-
+    
     function updateFinanceUI() {
         const depositSection = document.getElementById("deposit-section");
         const withdrawSection = document.getElementById("withdraw-section");
@@ -1185,50 +1009,25 @@
             withdrawSection.style.display = "block";
         }
     }
-
+    
     function confirmFinance() {
         if (currentFinanceTab === "deposit") {
             const amount = parseFloat(document.getElementById("deposit-amount").value);
-            if (amount && amount > 0) {
-                userTon += amount;
-                alert(`✅ Пополнено ${amount} TON!\n\nАдрес: ${document.getElementById("deposit-addr-text").innerText}\nМемо: AQUA_${userIdTelegram}`);
+            if (sendDepositRequest(amount)) {
                 document.getElementById("deposit-amount").value = "";
-                saveGame();
-                renderUI();
                 closeFinanceModal();
-            } else {
-                alert("Введите сумму пополнения");
             }
         } else {
             const amount = parseFloat(document.getElementById("withdraw-amount").value);
             const address = document.getElementById("withdraw-address").value.trim();
-            if (!address) {
-                alert("Введите адрес кошелька для вывода");
-                return;
-            }
-            if (amount && amount > 0) {
-                const minWithdraw = 1;
-                if (amount < minWithdraw) {
-                    alert(`Минимальная сумма вывода: ${minWithdraw} TON`);
-                    return;
-                }
-                if (userTon >= amount) {
-                    userTon -= amount;
-                    alert(`✅ Вывод ${amount} TON на адрес ${address.substring(0, 12)}...`);
-                    document.getElementById("withdraw-amount").value = "";
-                    document.getElementById("withdraw-address").value = "";
-                    saveGame();
-                    renderUI();
-                    closeFinanceModal();
-                } else {
-                    alert(`❌ Недостаточно TON! Доступно: ${userTon.toFixed(2)} TON`);
-                }
-            } else {
-                alert("Введите сумму вывода");
+            if (sendWithdrawRequest(amount, address)) {
+                document.getElementById("withdraw-amount").value = "";
+                document.getElementById("withdraw-address").value = "";
+                closeFinanceModal();
             }
         }
     }
-
+    
     function updateTimer() {
         const now = Math.floor(Date.now() / 1000);
         const nextHour = lastHourTimestamp + 3600;
@@ -1238,43 +1037,41 @@
         const seconds = diff % 60;
         document.getElementById("timer-display").innerHTML = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
     }
-
-    function formatDate(date) {
-        const now = new Date();
-        const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-        if (diffDays === 0) return "Сегодня";
-        if (diffDays === 1) return "Вчера";
-        return `${diffDays} дней назад`;
-    }
-
+    
     function renderUI() {
         document.getElementById("ton-balance").innerText = userTon.toFixed(2);
         document.getElementById("bubble-balance").innerText = Math.floor(userBubbles);
         document.getElementById("total-farm").innerText = totalEarnPerHour().toFixed(2);
         document.getElementById("inventory-count").innerText = inventory.length;
         
-        // Отображение профиля
         document.getElementById("user-name").innerHTML = displayName;
         document.getElementById("user-id").innerHTML = userIdTelegram;
-        document.getElementById("user-since").innerHTML = formatDate(joinDate);
-        document.getElementById("avatar-letter").innerHTML = userFirstLetter;
-
+        
+        let firstLetter = displayName.replace(/^@/, '').charAt(0).toUpperCase();
+        if (/[а-яА-Яa-zA-Z]/.test(firstLetter)) {
+            document.getElementById("profile-avatar").innerHTML = firstLetter;
+        } else {
+            document.getElementById("profile-avatar").innerHTML = "🐠";
+        }
+        
+        // Инвентарь
         let invHtml = "";
         if (inventory.length === 0) invHtml = "<div style='padding:25px;text-align:center;opacity:0.7;'>🐠 Нет обитателей. Купите в магазине!</div>";
         inventory.forEach(p => {
             let c = findCreature(p.creatureId);
             invHtml += `<div class="animal-card">
-                            <div class="animal-img">${c.svg}</div>
+                            <span class="animal-emoji">${c.emoji}</span>
                             <div class="animal-name">${c.name}</div>
                             <span class="earn-rate">🐟 +${c.earn} 🫧/час</span>
                         </div>`;
         });
         document.getElementById("inventory-list").innerHTML = invHtml;
-
+        
+        // Магазин
         let shopHtml = "";
         CREATURES.forEach(c => {
             shopHtml += `<div class="animal-card">
-                            <div class="animal-img">${c.svg}</div>
+                            <span class="animal-emoji">${c.emoji}</span>
                             <div class="animal-name">${c.name}</div>
                             <span class="earn-rate">📈 +${c.earn} 🫧/час</span>
                             <div class="price">${c.price} TON</div>
@@ -1283,19 +1080,21 @@
         });
         document.getElementById("shop-list").innerHTML = shopHtml;
         document.querySelectorAll(".buy-shop").forEach(btn => { btn.onclick = () => buyCreature(btn.dataset.id); });
-
+        
+        // Коллекция
         let allHtml = "";
         CREATURES.forEach(c => {
             allHtml += `<div class="animal-card">
-                            <div class="animal-img">${c.svg}</div>
+                            <span class="animal-emoji">${c.emoji}</span>
                             <div class="animal-name">${c.name}</div>
                             <span class="earn-rate">${c.earn} 🫧/час</span>
                             <div class="price">${c.price} TON</div>
                         </div>`;
         });
         document.getElementById("all-animals").innerHTML = allHtml;
-
-        let myOrders = bubbleOrders.filter(o => o.seller === displayName);
+        
+        // Рынок
+        let myOrders = bubbleOrders.filter(o => o.userId === userIdTelegram);
         let displayOrders = currentMarketTab === "all" ? bubbleOrders : myOrders;
         let ordersHtml = "";
         if (displayOrders.length === 0) ordersHtml = "<div style='text-align:center;padding:35px;opacity:0.7;'>📭 Нет заказов</div>";
@@ -1304,24 +1103,30 @@
             ordersHtml += `<div class="order-card">
                                 <div><div class="order-amount">${o.amount} 🫧</div><div class="order-rate" style="font-size:11px;">${rate} TON/пузырь</div></div>
                                 <div><div class="order-price">${o.priceTon} TON</div>
-                                ${o.seller === displayName ? `<button class="cancel-order" data-id="${o.id}" style="background:#a03e3e;">Отменить</button>` : `<button class="buy-order" data-id="${o.id}" class="btn-gold">Купить</button>`}
+                                ${o.userId === userIdTelegram ? `<button class="cancel-order" data-id="${o.id}" style="background:#a03e3e;">Отменить</button>` : `<button class="buy-order" data-id="${o.id}" class="btn-gold">Купить</button>`}
                                 </div>
                             </div>`;
         });
         document.getElementById("market-orders-list").innerHTML = ordersHtml;
         document.querySelectorAll(".buy-order").forEach(btn => { btn.onclick = () => buyOrder(parseFloat(btn.dataset.id)); });
         document.querySelectorAll(".cancel-order").forEach(btn => { btn.onclick = () => cancelOrder(parseFloat(btn.dataset.id)); });
-
+        
+        // Колесо
         const hasM = hasMollusk();
         if (hasM) { document.getElementById("wheel-locked").style.display = "none"; document.getElementById("wheel-active").style.display = "block"; }
         else { document.getElementById("wheel-locked").style.display = "block"; document.getElementById("wheel-active").style.display = "none"; }
-
-        document.getElementById("referral-link").innerHTML = `https://t.me/AquaTON_bot/app?start=${userIdTelegram}`;
+        
+        const botUsername = tg?.initDataUnsafe?.start_param || "AquaTON_bot";
+        document.getElementById("referral-link").innerHTML = `https://t.me/AquaTON_bot?start=${userIdTelegram}`;
         document.getElementById("referral-stats").innerHTML = `Приглашено: ${referrals} друзей`;
     }
-
+    
+    // ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
     function saveGame() {
-        localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify({ inventory, userTon, userBubbles, lastHourTimestamp, wheelCooldown, referrals, bubbleOrders, joinDate: joinDate.toISOString() }));
+        localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify({ 
+            inventory, userTon, userBubbles, lastHourTimestamp, 
+            wheelCooldown, referrals, bubbleOrders 
+        }));
     }
     
     function loadGame() {
@@ -1336,12 +1141,12 @@
                 wheelCooldown = d.wheelCooldown ?? 0;
                 referrals = d.referrals ?? 0;
                 bubbleOrders = d.bubbleOrders || [];
-                if (d.joinDate) joinDate = new Date(d.joinDate);
             } catch(e) {}
         }
         autoGrantBubbles();
     }
-
+    
+    // ========== ПУЗЫРЬКИ НА ФОНЕ ==========
     function createBubbles() {
         setInterval(() => {
             let container = document.getElementById("bubbles-container");
@@ -1354,23 +1159,10 @@
             b.style.animationDuration = 2.5 + Math.random() * 14 + "s";
             container.appendChild(b);
             setTimeout(() => b.remove(), 15000);
-        }, 350);
+        }, 400);
     }
-
-    // Скрыть splash и показать контент
-    function hideSplash() {
-        const splash = document.getElementById("splashScreen");
-        const container = document.getElementById("mainContainer");
-        setTimeout(() => {
-            splash.style.opacity = "0";
-            setTimeout(() => {
-                splash.style.display = "none";
-                container.classList.add("loaded");
-            }, 800);
-        }, 1500);
-    }
-
-    // Копирование
+    
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("copy-btn")) {
             const targetId = e.target.getAttribute("data-copy");
@@ -1379,8 +1171,7 @@
             alert("Скопировано!");
         }
     });
-
-    // Меню
+    
     document.querySelectorAll(".menu-item").forEach(item => {
         item.onclick = () => {
             document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
@@ -1389,7 +1180,7 @@
             document.getElementById(`page-${item.dataset.page}`).classList.add("active");
         };
     });
-
+    
     document.querySelectorAll(".market-tab").forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll(".market-tab").forEach(t => t.classList.remove("active"));
@@ -1398,7 +1189,7 @@
             renderUI();
         };
     });
-
+    
     document.querySelectorAll(".finance-tab").forEach(tab => {
         tab.onclick = () => {
             document.querySelectorAll(".finance-tab").forEach(t => t.classList.remove("active"));
@@ -1407,7 +1198,7 @@
             updateFinanceUI();
         };
     });
-
+    
     document.querySelectorAll(".quick-amount[data-amount]").forEach(btn => {
         btn.onclick = () => {
             document.getElementById("deposit-amount").value = btn.dataset.amount;
@@ -1418,7 +1209,7 @@
             document.getElementById("withdraw-amount").value = btn.dataset.withdraw;
         };
     });
-
+    
     document.getElementById("ton-balance-card").onclick = showFinanceModal;
     document.getElementById("spin-wheel").onclick = spinWheel;
     document.getElementById("create-sell-order").onclick = () => {
@@ -1434,8 +1225,8 @@
     document.getElementById("support-btn").onclick = () => alert("Техподдержка: @aquaton_support\n\nПо всем вопросам пишите в Telegram");
     document.getElementById("finance-confirm").onclick = confirmFinance;
     document.getElementById("finance-cancel").onclick = closeFinanceModal;
-
-    // Инициализация
+    
+    // Запуск
     loadGame();
     createBubbles();
     setInterval(() => { autoGrantBubbles(); renderUI(); }, 1000);
@@ -1443,12 +1234,7 @@
     renderUI();
     updateTimer();
     
-    // Запускаем splash screen
-    hideSplash();
-    
-    // Выводим в консоль для отладки
-    console.log("AquaTON загружен!");
-    console.log("Пользователь:", displayName, "ID:", userIdTelegram);
+    console.log("AquaTON загружен! Пользователь:", displayName, "ID:", userIdTelegram);
 </script>
 </body>
 </html>
