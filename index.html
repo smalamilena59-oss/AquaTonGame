@@ -794,14 +794,31 @@
         tg.ready();
         tg.expand();
         
-        // Получаем данные пользователя
-        const initData = tg.initDataUnsafe;
+        // Пробуем получить данные пользователя разными способами
+        let user = null;
         
-        if (initData && initData.user) {
-            const user = initData.user;
+        // Способ 1: initDataUnsafe.user
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            user = tg.initDataUnsafe.user;
+            console.log("Данные из initDataUnsafe.user:", user);
+        }
+        
+        // Способ 2: парсим initData
+        if (!user && tg.initData) {
+            try {
+                const params = new URLSearchParams(tg.initData);
+                const userParam = params.get('user');
+                if (userParam) {
+                    user = JSON.parse(decodeURIComponent(userParam));
+                    console.log("Данные из initData:", user);
+                }
+            } catch(e) {
+                console.error("Ошибка парсинга initData:", e);
+            }
+        }
+        
+        if (user) {
             userId = user.id;
-            
-            // Формируем имя пользователя
             if (user.username) {
                 userName = "@" + user.username;
             } else if (user.first_name) {
@@ -812,33 +829,18 @@
             } else {
                 userName = "Пользователь";
             }
-            
-            console.log("Telegram WebApp данные получены:", { userId, userName });
+            console.log("✅ Данные пользователя получены:", { userId, userName });
         } else {
-            console.warn("Telegram WebApp доступен, но данные пользователя не получены");
-            // Пробуем получить через initData
-            if (tg.initData) {
-                console.log("initData:", tg.initData);
-                // Парсим initData
-                const params = new URLSearchParams(tg.initData);
-                const userParam = params.get('user');
-                if (userParam) {
-                    try {
-                        const user = JSON.parse(decodeURIComponent(userParam));
-                        userId = user.id;
-                        userName = user.username ? "@" + user.username : (user.first_name || "Пользователь");
-                        console.log("Данные из initData:", { userId, userName });
-                    } catch(e) {
-                        console.error("Ошибка парсинга user из initData:", e);
-                    }
-                }
-            }
+            console.warn("⚠️ Не удалось получить данные пользователя");
+            // В демо-режиме создаем временного пользователя
+            userId = "demo_" + Math.floor(Math.random() * 1000000);
+            userName = "Демо пользователь";
         }
     } else {
         // Демо-режим (для теста вне Telegram)
         console.log("Демо-режим: приложение открыто не в Telegram");
         userId = "demo_" + Math.floor(Math.random() * 1000000);
-        userName = "Demo User";
+        userName = "Демо пользователь";
         
         // Показываем предупреждение
         const demoWarning = document.createElement('div');
@@ -1190,7 +1192,7 @@
         if (hasM) { document.getElementById("wheel-locked").style.display = "none"; document.getElementById("wheel-active").style.display = "block"; }
         else { document.getElementById("wheel-locked").style.display = "block"; document.getElementById("wheel-active").style.display = "none"; }
         
-        const botUsername = "AquaTON_bot";
+        const botUsername = "AquaTonRobot";
         document.getElementById("referral-link").innerHTML = `https://t.me/${botUsername}?start=${userIdTelegram}`;
     }
     
