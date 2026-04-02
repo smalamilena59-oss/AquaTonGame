@@ -6,6 +6,9 @@
     <title>AquaTON | Океанариум</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- TON SDK -->
+    <script src="https://unpkg.com/ton@14.0.0/dist/ton.js"></script>
+    <script src="https://unpkg.com/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -325,6 +328,12 @@
             color: #1f3a3f;
         }
 
+        .btn-wallet {
+            background: linear-gradient(95deg, #48cae4, #2c7da0);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
         .order-card {
             background: linear-gradient(135deg, rgba(0,65,85,0.9) 0%, rgba(0,45,65,0.9) 100%);
             border-radius: 28px;
@@ -542,10 +551,22 @@
             margin-right: 6px;
         }
 
-        .demo-warning {
-            background: rgba(255,100,100,0.3);
-            border: 1px solid #ff6666;
-            color: #ffaaaa;
+        .wallet-status {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wallet-connected {
+            color: #4caf50;
+        }
+
+        .wallet-disconnected {
+            color: #ffaa66;
         }
     </style>
 </head>
@@ -574,6 +595,10 @@
         <div class="farm-info">
             <span><i class="fas fa-hourglass-half"></i> Следующее начисление:</span>
             <span class="timer" id="timer-display">--:--:--</span>
+            <button id="wallet-connect-btn" class="btn-wallet"><i class="fas fa-wallet"></i> Кошелек</button>
+        </div>
+        <div id="wallet-status" class="wallet-status wallet-disconnected" style="margin-top: 12px;">
+            <i class="fas fa-plug"></i> Кошелек не подключен
         </div>
     </div>
 
@@ -782,39 +807,101 @@
 </div>
 
 <script>
-    // ========== ПРАВИЛЬНОЕ ПОЛУЧЕНИЕ ДАННЫХ ИЗ TELEGRAM ==========
+    // ========== TON SDK ИНИЦИАЛИЗАЦИЯ ==========
+    let tonConnect;
+    let walletConnected = false;
+    let walletAddress = null;
+    
+    // Конфигурация TON Connect
+    const manifestUrl = 'https://smalamilena59-oss.github.io/AquaTonGame/tonconnect-manifest.json';
+    
+    async function initTonConnect() {
+        try {
+            tonConnect = new TonConnectSDK.TonConnect();
+            await tonConnect.init({
+                manifestUrl: manifestUrl
+            });
+            
+            // Проверяем подключен ли кошелек
+            const wallet = tonConnect.wallet;
+            if (wallet) {
+                walletConnected = true;
+                walletAddress = wallet.account.address;
+                updateWalletUI();
+            }
+            
+            // Слушаем изменения статуса
+            tonConnect.onStatusChange((wallet) => {
+                if (wallet) {
+                    walletConnected = true;
+                    walletAddress = wallet.account.address;
+                    updateWalletUI();
+                } else {
+                    walletConnected = false;
+                    walletAddress = null;
+                    updateWalletUI();
+                }
+            });
+        } catch(e) {
+            console.error("TON Connect init error:", e);
+        }
+    }
+    
+    function updateWalletUI() {
+        const statusDiv = document.getElementById("wallet-status");
+        const connectBtn = document.getElementById("wallet-connect-btn");
+        
+        if (walletConnected && walletAddress) {
+            const shortAddr = walletAddress.slice(0, 6) + "..." + walletAddress.slice(-4);
+            statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> Кошелек: ${shortAddr}`;
+            statusDiv.className = "wallet-status wallet-connected";
+            connectBtn.innerHTML = `<i class="fas fa-wallet"></i> ${shortAddr}`;
+        } else {
+            statusDiv.innerHTML = `<i class="fas fa-plug"></i> Кошелек не подключен`;
+            statusDiv.className = "wallet-status wallet-disconnected";
+            connectBtn.innerHTML = `<i class="fas fa-wallet"></i> Подключить кошелек`;
+        }
+    }
+    
+    async function connectWallet() {
+        try {
+            const wallets = await tonConnect.getWallets();
+            if (wallets.length > 0) {
+                await tonConnect.connect(wallets[0]);
+            } else {
+                alert("Установите TON кошелек (Tonkeeper, Wallet, и т.д.)");
+            }
+        } catch(e) {
+            console.error("Connect error:", e);
+            alert("Ошибка подключения кошелька: " + e.message);
+        }
+    }
+    
+    // ========== ПОЛУЧЕНИЕ ДАННЫХ ИЗ TELEGRAM ==========
     let tg = window.Telegram?.WebApp;
     let userName = "Гость";
     let userId = "unknown";
     let isTelegram = false;
     
-    // Проверяем, открыто ли приложение в Telegram
     if (tg) {
         isTelegram = true;
         tg.ready();
         tg.expand();
         
-        // Пробуем получить данные пользователя разными способами
         let user = null;
         
-        // Способ 1: initDataUnsafe.user
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             user = tg.initDataUnsafe.user;
-            console.log("Данные из initDataUnsafe.user:", user);
         }
         
-        // Способ 2: парсим initData
         if (!user && tg.initData) {
             try {
                 const params = new URLSearchParams(tg.initData);
                 const userParam = params.get('user');
                 if (userParam) {
                     user = JSON.parse(decodeURIComponent(userParam));
-                    console.log("Данные из initData:", user);
                 }
-            } catch(e) {
-                console.error("Ошибка парсинга initData:", e);
-            }
+            } catch(e) {}
         }
         
         if (user) {
@@ -823,36 +910,23 @@
                 userName = "@" + user.username;
             } else if (user.first_name) {
                 userName = user.first_name;
-                if (user.last_name) {
-                    userName += " " + user.last_name;
-                }
-            } else {
-                userName = "Пользователь";
+                if (user.last_name) userName += " " + user.last_name;
             }
-            console.log("✅ Данные пользователя получены:", { userId, userName });
-        } else {
-            console.warn("⚠️ Не удалось получить данные пользователя");
-            // В демо-режиме создаем временного пользователя
-            userId = "demo_" + Math.floor(Math.random() * 1000000);
-            userName = "Демо пользователь";
         }
     } else {
-        // Демо-режим (для теста вне Telegram)
-        console.log("Демо-режим: приложение открыто не в Telegram");
         userId = "demo_" + Math.floor(Math.random() * 1000000);
         userName = "Демо пользователь";
         
-        // Показываем предупреждение
         const demoWarning = document.createElement('div');
         demoWarning.className = 'info-text demo-warning';
+        demoWarning.style.background = 'rgba(255,100,100,0.3)';
+        demoWarning.style.border = '1px solid #ff6666';
         demoWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Демо-режим. Для полноценной работы откройте приложение в Telegram!';
         document.querySelector('.container').insertBefore(demoWarning, document.querySelector('.header').nextSibling);
     }
     
     const displayName = userName;
     const userIdTelegram = userId;
-    
-    console.log("Итоговые данные:", { displayName, userIdTelegram, isTelegram });
     
     // ========== ЖИВОТНЫЕ ==========
     const CREATURES = [
@@ -878,24 +952,18 @@
     let currentMarketTab = "all";
     let currentFinanceTab = "deposit";
     
-    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
     function findCreature(id) { return CREATURES.find(c => c.id === id); }
     function hasMollusk() { return inventory.some(p => p.creatureId === "mollusk"); }
     function totalEarnPerHour() { return inventory.reduce((s, p) => s + findCreature(p.creatureId).earn, 0); }
     
-    // ========== ОТПРАВКА ЗАЯВОК В БОТА ==========
     function sendToBot(data) {
         if (tg && tg.sendData) {
             tg.sendData(JSON.stringify(data));
-            console.log("Отправлено в бота:", data);
             return true;
-        } else {
-            console.log("Демо-режим (не Telegram):", data);
-            return false;
         }
+        return false;
     }
     
-    // ========== ЗАЯВКА НА ПОПОЛНЕНИЕ ==========
     function sendDepositRequest(amount) {
         if (!amount || amount <= 0) {
             alert("Введите сумму пополнения");
@@ -903,8 +971,7 @@
         }
         
         const memo = `AQUA_${userIdTelegram}`;
-        
-        const sent = sendToBot({
+        sendToBot({
             type: "deposit",
             amount: amount,
             memo: memo,
@@ -912,15 +979,10 @@
             userName: displayName
         });
         
-        if (sent) {
-            alert(`✅ Заявка на пополнение ${amount} TON отправлена!\n\n📍 Адрес: UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk\n📝 Ваш мемо: ${memo}\n\nАдминистратор обработает заявку после получения средств.`);
-        } else {
-            alert(`⚠️ Демо-режим: заявка на пополнение ${amount} TON\n\n📍 Адрес: UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk\n📝 Мемо: ${memo}`);
-        }
+        alert(`✅ Заявка на пополнение ${amount} TON отправлена!\n\n📍 Адрес: UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk\n📝 Ваш мемо: ${memo}`);
         return true;
     }
     
-    // ========== ЗАЯВКА НА ВЫВОД ==========
     function sendWithdrawRequest(amount, address) {
         if (!amount || amount <= 0) {
             alert("Введите сумму вывода");
@@ -931,7 +993,7 @@
             return false;
         }
         if (userTon < amount) {
-            alert(`❌ Недостаточно средств! Доступно: ${userTon.toFixed(2)} TON`);
+            alert(`Недостаточно средств! Доступно: ${userTon.toFixed(2)} TON`);
             return false;
         }
         if (!address || address.length < 10) {
@@ -939,7 +1001,7 @@
             return false;
         }
         
-        const sent = sendToBot({
+        sendToBot({
             type: "withdraw",
             amount: amount,
             address: address,
@@ -947,15 +1009,10 @@
             userName: displayName
         });
         
-        if (sent) {
-            alert(`✅ Заявка на вывод ${amount} TON отправлена!\n📍 Адрес: ${address.substring(0, 15)}...\n\nАдминистратор обработает заявку в течение 24 часов.`);
-        } else {
-            alert(`⚠️ Демо-режим: заявка на вывод ${amount} TON на адрес ${address.substring(0, 15)}...`);
-        }
+        alert(`✅ Заявка на вывод ${amount} TON отправлена!`);
         return true;
     }
     
-    // ========== АВТОМАТИЧЕСКОЕ НАЧИСЛЕНИЕ ПУЗЫРЕЙ ==========
     function autoGrantBubbles() {
         const now = Math.floor(Date.now() / 1000);
         const currentHour = Math.floor(now / 3600) * 3600;
@@ -982,7 +1039,6 @@
         renderUI();
     }
     
-    // ========== ПОКУПКА ЖИВОТНОГО ==========
     function buyCreature(id) {
         let c = findCreature(id);
         if (userTon >= c.price) {
@@ -993,7 +1049,6 @@
         } else alert(`Не хватает TON! Нужно ${c.price} TON`);
     }
     
-    // ========== РЫНОК ПУЗЫРЕЙ ==========
     function createOrder(amount, priceTon) {
         if (amount <= 0 || priceTon <= 0) return alert("Введите корректные значения");
         if (userBubbles < amount) return alert(`У вас только ${Math.floor(userBubbles)} пузырей`);
@@ -1032,7 +1087,6 @@
         }
     }
     
-    // ========== КОЛЕСО ФОРТУНЫ ==========
     function spinWheel() {
         if (!hasMollusk()) return alert("Купите Моллюска за 0.5 TON!");
         if (wheelCooldown > Date.now()) {
@@ -1059,7 +1113,6 @@
         setTimeout(() => wheel.style.transform = "", 3000);
     }
     
-    // ========== UI ФУНКЦИИ ==========
     function showFinanceModal() {
         document.getElementById("finance-modal").style.display = "flex";
         updateFinanceUI();
@@ -1130,7 +1183,6 @@
         document.getElementById("referral-earn").innerHTML = referralEarn.toFixed(2) + " TON";
         document.getElementById("referral-count").innerHTML = referrals.length;
         
-        // Инвентарь
         let invHtml = "";
         if (inventory.length === 0) invHtml = "<div style='padding:25px;text-align:center;opacity:0.7;'>🐠 Нет обитателей. Купите в магазине!</div>";
         inventory.forEach(p => {
@@ -1143,7 +1195,6 @@
         });
         document.getElementById("inventory-list").innerHTML = invHtml;
         
-        // Магазин
         let shopHtml = "";
         CREATURES.forEach(c => {
             shopHtml += `<div class="animal-card">
@@ -1157,7 +1208,6 @@
         document.getElementById("shop-list").innerHTML = shopHtml;
         document.querySelectorAll(".buy-shop").forEach(btn => { btn.onclick = () => buyCreature(btn.dataset.id); });
         
-        // Коллекция
         let allHtml = "";
         CREATURES.forEach(c => {
             allHtml += `<div class="animal-card">
@@ -1169,7 +1219,6 @@
         });
         document.getElementById("all-animals").innerHTML = allHtml;
         
-        // Рынок
         let myOrders = bubbleOrders.filter(o => o.userId === userIdTelegram);
         let displayOrders = currentMarketTab === "all" ? bubbleOrders : myOrders;
         let ordersHtml = "";
@@ -1187,7 +1236,6 @@
         document.querySelectorAll(".buy-order").forEach(btn => { btn.onclick = () => buyOrder(parseFloat(btn.dataset.id)); });
         document.querySelectorAll(".cancel-order").forEach(btn => { btn.onclick = () => cancelOrder(parseFloat(btn.dataset.id)); });
         
-        // Колесо
         const hasM = hasMollusk();
         if (hasM) { document.getElementById("wheel-locked").style.display = "none"; document.getElementById("wheel-active").style.display = "block"; }
         else { document.getElementById("wheel-locked").style.display = "block"; document.getElementById("wheel-active").style.display = "none"; }
@@ -1196,22 +1244,10 @@
         document.getElementById("referral-link").innerHTML = `https://t.me/${botUsername}?start=${userIdTelegram}`;
     }
     
-    // ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
     function saveGame() {
-        const saveData = { 
-            inventory, userTon, userBubbles, lastHourTimestamp, 
-            wheelCooldown, referrals, referralEarn, bubbleOrders 
-        };
+        const saveData = { inventory, userTon, userBubbles, lastHourTimestamp, wheelCooldown, referrals, referralEarn, bubbleOrders };
         localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify(saveData));
-        
-        // Также отправляем данные в бот для синхронизации
-        if (tg && tg.sendData) {
-            sendToBot({
-                type: "sync",
-                userId: userIdTelegram,
-                data: { userTon, userBubbles, inventory }
-            });
-        }
+        sendToBot({ type: "sync", userId: userIdTelegram, data: { userTon, userBubbles, inventory } });
     }
     
     function loadGame() {
@@ -1232,7 +1268,6 @@
         autoGrantBubbles();
     }
     
-    // ========== ПУЗЫРЬКИ НА ФОНЕ ==========
     function createBubbles() {
         setInterval(() => {
             let container = document.getElementById("bubbles-container");
@@ -1248,7 +1283,6 @@
         }, 400);
     }
     
-    // ========== ИНИЦИАЛИЗАЦИЯ ==========
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("copy-btn")) {
             const targetId = e.target.getAttribute("data-copy");
@@ -1286,14 +1320,10 @@
     });
     
     document.querySelectorAll(".quick-amount[data-amount]").forEach(btn => {
-        btn.onclick = () => {
-            document.getElementById("deposit-amount").value = btn.dataset.amount;
-        };
+        btn.onclick = () => { document.getElementById("deposit-amount").value = btn.dataset.amount; };
     });
     document.querySelectorAll(".quick-amount[data-withdraw]").forEach(btn => {
-        btn.onclick = () => {
-            document.getElementById("withdraw-amount").value = btn.dataset.withdraw;
-        };
+        btn.onclick = () => { document.getElementById("withdraw-amount").value = btn.dataset.withdraw; };
     });
     
     document.getElementById("ton-balance-card").onclick = showFinanceModal;
@@ -1308,11 +1338,11 @@
         navigator.clipboard.writeText(document.getElementById("referral-link").innerText);
         alert("Ссылка скопирована!");
     };
-    document.getElementById("support-btn").onclick = () => alert("Техподдержка: @aquaton_support\n\nПо всем вопросам пишите в Telegram");
+    document.getElementById("support-btn").onclick = () => alert("Техподдержка: @aquaton_support");
     document.getElementById("finance-confirm").onclick = confirmFinance;
     document.getElementById("finance-cancel").onclick = closeFinanceModal;
+    document.getElementById("wallet-connect-btn").onclick = connectWallet;
     
-    // Запуск
     loadGame();
     createBubbles();
     setInterval(() => { autoGrantBubbles(); renderUI(); }, 1000);
@@ -1320,7 +1350,9 @@
     renderUI();
     updateTimer();
     
-    console.log("AquaTON загружен! Пользователь:", displayName, "ID:", userIdTelegram, "Telegram:", isTelegram);
+    initTonConnect();
+    
+    console.log("AquaTON загружен! Пользователь:", displayName, "ID:", userIdTelegram);
 </script>
 </body>
 </html>
