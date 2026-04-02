@@ -541,6 +541,12 @@
             color: #7AD0E8;
             margin-right: 6px;
         }
+
+        .demo-warning {
+            background: rgba(255,100,100,0.3);
+            border: 1px solid #ff6666;
+            color: #ffaaaa;
+        }
     </style>
 </head>
 <body>
@@ -648,18 +654,24 @@
     <div id="page-friends" class="content-page">
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-user-friends"></i> Рефералы</h3>
+                <h3><i class="fas fa-user-friends"></i> Реферальная система</h3>
             </div>
-            <p>Приглашайте друзей и получайте 0.5 TON за каждого!</p>
+            <p>Приглашайте друзей и получайте <strong>5% от всех их пополнений</strong>!</p>
             <div class="referral-link" id="referral-link"></div>
             <button id="copy-link" class="btn-gold">Копировать ссылку</button>
             <div style="margin-top: 20px;">
                 <div class="balance-card" style="cursor:default;">
-                    <small>За регистрацию друга</small>
-                    <div class="value ton-value">0.5 TON</div>
+                    <small>💰 Заработано с рефералов</small>
+                    <div class="value ton-value" id="referral-earn">0.00 TON</div>
+                </div>
+                <div class="balance-card" style="cursor:default; margin-top: 10px;">
+                    <small>👥 Приглашено друзей</small>
+                    <div class="value" id="referral-count">0</div>
                 </div>
             </div>
-            <div id="referral-stats" style="text-align:center; margin-top:16px;">Приглашено: 0 друзей</div>
+            <div class="info-text">
+                <i class="fas fa-chart-line"></i> Вы получаете 5% от суммы каждого пополнения ваших рефералов!
+            </div>
         </div>
     </div>
 
@@ -770,27 +782,75 @@
 </div>
 
 <script>
-    // ========== ПОЛУЧЕНИЕ ДАННЫХ ИЗ TELEGRAM ==========
+    // ========== ПРАВИЛЬНОЕ ПОЛУЧЕНИЕ ДАННЫХ ИЗ TELEGRAM ==========
     let tg = window.Telegram?.WebApp;
     let userName = "Гость";
     let userId = "unknown";
+    let isTelegram = false;
     
+    // Проверяем, открыто ли приложение в Telegram
     if (tg) {
+        isTelegram = true;
         tg.ready();
         tg.expand();
-        if (tg.initDataUnsafe?.user) {
-            let u = tg.initDataUnsafe.user;
-            userName = u.username ? "@" + u.username : (u.first_name || "Пользователь");
-            userId = u.id;
+        
+        // Получаем данные пользователя
+        const initData = tg.initDataUnsafe;
+        
+        if (initData && initData.user) {
+            const user = initData.user;
+            userId = user.id;
+            
+            // Формируем имя пользователя
+            if (user.username) {
+                userName = "@" + user.username;
+            } else if (user.first_name) {
+                userName = user.first_name;
+                if (user.last_name) {
+                    userName += " " + user.last_name;
+                }
+            } else {
+                userName = "Пользователь";
+            }
+            
+            console.log("Telegram WebApp данные получены:", { userId, userName });
+        } else {
+            console.warn("Telegram WebApp доступен, но данные пользователя не получены");
+            // Пробуем получить через initData
+            if (tg.initData) {
+                console.log("initData:", tg.initData);
+                // Парсим initData
+                const params = new URLSearchParams(tg.initData);
+                const userParam = params.get('user');
+                if (userParam) {
+                    try {
+                        const user = JSON.parse(decodeURIComponent(userParam));
+                        userId = user.id;
+                        userName = user.username ? "@" + user.username : (user.first_name || "Пользователь");
+                        console.log("Данные из initData:", { userId, userName });
+                    } catch(e) {
+                        console.error("Ошибка парсинга user из initData:", e);
+                    }
+                }
+            }
         }
     } else {
-        // Для локального теста
+        // Демо-режим (для теста вне Telegram)
+        console.log("Демо-режим: приложение открыто не в Telegram");
+        userId = "demo_" + Math.floor(Math.random() * 1000000);
         userName = "Demo User";
-        userId = Math.floor(Math.random() * 10000000);
+        
+        // Показываем предупреждение
+        const demoWarning = document.createElement('div');
+        demoWarning.className = 'info-text demo-warning';
+        demoWarning.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Демо-режим. Для полноценной работы откройте приложение в Telegram!';
+        document.querySelector('.container').insertBefore(demoWarning, document.querySelector('.header').nextSibling);
     }
     
     const displayName = userName;
     const userIdTelegram = userId;
+    
+    console.log("Итоговые данные:", { displayName, userIdTelegram, isTelegram });
     
     // ========== ЖИВОТНЫЕ ==========
     const CREATURES = [
@@ -810,7 +870,8 @@
     let userBubbles = 0;
     let lastHourTimestamp = 0;
     let wheelCooldown = 0;
-    let referrals = 0;
+    let referrals = [];
+    let referralEarn = 0;
     let bubbleOrders = [];
     let currentMarketTab = "all";
     let currentFinanceTab = "deposit";
@@ -822,11 +883,13 @@
     
     // ========== ОТПРАВКА ЗАЯВОК В БОТА ==========
     function sendToBot(data) {
-        if (tg) {
+        if (tg && tg.sendData) {
             tg.sendData(JSON.stringify(data));
             console.log("Отправлено в бота:", data);
+            return true;
         } else {
-            console.log("Демо-режим:", data);
+            console.log("Демо-режим (не Telegram):", data);
+            return false;
         }
     }
     
@@ -839,7 +902,7 @@
         
         const memo = `AQUA_${userIdTelegram}`;
         
-        sendToBot({
+        const sent = sendToBot({
             type: "deposit",
             amount: amount,
             memo: memo,
@@ -847,7 +910,11 @@
             userName: displayName
         });
         
-        alert(`✅ Заявка на пополнение ${amount} TON отправлена!\n\n📍 Адрес: UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk\n📝 Ваш мемо: ${memo}\n\nАдминистратор обработает заявку после получения средств.`);
+        if (sent) {
+            alert(`✅ Заявка на пополнение ${amount} TON отправлена!\n\n📍 Адрес: UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk\n📝 Ваш мемо: ${memo}\n\nАдминистратор обработает заявку после получения средств.`);
+        } else {
+            alert(`⚠️ Демо-режим: заявка на пополнение ${amount} TON\n\n📍 Адрес: UQAoYJG_SzZsqJeYZ2R3a8d1JjS9Hd6BkOczM7LYNrZsxTkk\n📝 Мемо: ${memo}`);
+        }
         return true;
     }
     
@@ -870,7 +937,7 @@
             return false;
         }
         
-        sendToBot({
+        const sent = sendToBot({
             type: "withdraw",
             amount: amount,
             address: address,
@@ -878,7 +945,11 @@
             userName: displayName
         });
         
-        alert(`✅ Заявка на вывод ${amount} TON отправлена!\n📍 Адрес: ${address.substring(0, 15)}...\n\nАдминистратор обработает заявку в течение 24 часов.`);
+        if (sent) {
+            alert(`✅ Заявка на вывод ${amount} TON отправлена!\n📍 Адрес: ${address.substring(0, 15)}...\n\nАдминистратор обработает заявку в течение 24 часов.`);
+        } else {
+            alert(`⚠️ Демо-режим: заявка на вывод ${amount} TON на адрес ${address.substring(0, 15)}...`);
+        }
         return true;
     }
     
@@ -1054,6 +1125,9 @@
             document.getElementById("profile-avatar").innerHTML = "🐠";
         }
         
+        document.getElementById("referral-earn").innerHTML = referralEarn.toFixed(2) + " TON";
+        document.getElementById("referral-count").innerHTML = referrals.length;
+        
         // Инвентарь
         let invHtml = "";
         if (inventory.length === 0) invHtml = "<div style='padding:25px;text-align:center;opacity:0.7;'>🐠 Нет обитателей. Купите в магазине!</div>";
@@ -1116,17 +1190,26 @@
         if (hasM) { document.getElementById("wheel-locked").style.display = "none"; document.getElementById("wheel-active").style.display = "block"; }
         else { document.getElementById("wheel-locked").style.display = "block"; document.getElementById("wheel-active").style.display = "none"; }
         
-        const botUsername = tg?.initDataUnsafe?.start_param || "AquaTON_bot";
-        document.getElementById("referral-link").innerHTML = `https://t.me/AquaTON_bot?start=${userIdTelegram}`;
-        document.getElementById("referral-stats").innerHTML = `Приглашено: ${referrals} друзей`;
+        const botUsername = "AquaTON_bot";
+        document.getElementById("referral-link").innerHTML = `https://t.me/${botUsername}?start=${userIdTelegram}`;
     }
     
     // ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
     function saveGame() {
-        localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify({ 
+        const saveData = { 
             inventory, userTon, userBubbles, lastHourTimestamp, 
-            wheelCooldown, referrals, bubbleOrders 
-        }));
+            wheelCooldown, referrals, referralEarn, bubbleOrders 
+        };
+        localStorage.setItem(`aquaton_${userIdTelegram}`, JSON.stringify(saveData));
+        
+        // Также отправляем данные в бот для синхронизации
+        if (tg && tg.sendData) {
+            sendToBot({
+                type: "sync",
+                userId: userIdTelegram,
+                data: { userTon, userBubbles, inventory }
+            });
+        }
     }
     
     function loadGame() {
@@ -1139,7 +1222,8 @@
                 userBubbles = d.userBubbles ?? 0;
                 lastHourTimestamp = d.lastHourTimestamp ?? 0;
                 wheelCooldown = d.wheelCooldown ?? 0;
-                referrals = d.referrals ?? 0;
+                referrals = d.referrals || [];
+                referralEarn = d.referralEarn ?? 0;
                 bubbleOrders = d.bubbleOrders || [];
             } catch(e) {}
         }
@@ -1234,7 +1318,7 @@
     renderUI();
     updateTimer();
     
-    console.log("AquaTON загружен! Пользователь:", displayName, "ID:", userIdTelegram);
+    console.log("AquaTON загружен! Пользователь:", displayName, "ID:", userIdTelegram, "Telegram:", isTelegram);
 </script>
 </body>
 </html>
